@@ -1,0 +1,8 @@
+discord.py==2.3.2
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-dotenv==1.0.0
+langgraph==0.0.55
+langfuse==2.7.3
+litellm==1.17.9
+httpx==0.25.2

@@ -1,0 +1,49 @@
+groups:
+  - name: application_alerts
+    rules:
+      - alert: KnownWarningDetected
+        expr: 'sum(rate({job="containerlogs"} |= "Known Warning"[1m])) > 0'
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Known warning detected in an application"
+          description: "A known, non-critical warning '{{ $labels.stream }}' is being logged by {{ $labels.container_label_com_docker_compose_service }}."
+
+      - alert: CriticalErrorDetected
+        expr: 'sum(rate({job="containerlogs"} |= "PHP Fatal error"[1m])) > 0'
+        for: 10s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical PHP error detected"
+          description: "A critical PHP fatal error has been detected in the logs for {{ $labels.container_label_com_docker_compose_service }}. This requires immediate attention."
+
+  - name: infrastructure_alerts
+    rules:
+      - alert: ApplicationDown
+        expr: 'up{job="php-applications"} == 0'
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "PHP application is down"
+          description: "PHP application {{ $labels.instance }} has been down for more than 30 seconds."
+
+      - alert: AgentDown
+        expr: 'up{job="vibe-debugger-agent"} == 0'
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "VibeDebugger agent is down"
+          description: "The VibeDebugger agent {{ $labels.instance }} has been down for more than 30 seconds."
+
+      - alert: HighErrorRate
+        expr: 'rate(app_errors_total[5m]) > 0.1'
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate detected"
+          description: "Application {{ $labels.instance }} has an error rate of {{ $value }} errors per second."

@@ -1,0 +1,49 @@
+# Ignore Python cache and virtual environments
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv
+venv/
+env/
+ENV/
+
+# Ignore sensitive environment files
+.env
+.env.local
+.env.production
+agent/.env
+*.key
+*.pem
+
+# Ignore Docker volumes and temporary files
+docker-compose.yml.backup.*
+*.tmp
+*.log
+
+# Ignore OS-specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Ignore IDE-specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Ignore build artifacts
+dist/
+build/
+*.egg-info/
+
+# Ignore monitoring data
+prometheus_data/
+grafana_data/
+loki_data/
