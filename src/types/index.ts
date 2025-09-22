@@ -60,13 +60,13 @@ export interface DeploymentInfo {
 }
 
 export interface ConversationMessage {
-  role: 'user' | 'assistant';
-  content: string;
+  user: string;
+  bot: string;
   timestamp: Date;
 }
 
 export interface NewRelicServerInterface {
-  getRecentErrors(args: { timeRange?: string; applicationName?: string }): Promise<NewRelicError[]>;
-  getDeploymentInfo(args: { applicationName?: string; timeRange?: string }): Promise<DeploymentInfo[]>;
-  getErrorDetails(args: { errorId: string }): Promise<NewRelicError | null>;
+  getErrorInbox(args: { timeRange?: string; applicationName?: string; limit?: number }): Promise<{ content: { type: string; text: string }[] }>;
+  getDeploymentInfo(args: { applicationName?: string; timeRange?: string }): Promise<{ content: { type: string; text: string }[] }>;
+  getErrorDetails(args: { errorId: string }): Promise<{ content: { type: string; text: string }[] }>;
 }

@@ -1,8 +1,8 @@
 import dotenv from 'dotenv';
 import { ErrorAnalyzer } from './agents/error-analyzer';
 import { DiscordBot } from './bots/discord-bot';
-import { NewRelicMCPServer } from './mcp/newrelic-server';
 import { MockNewRelicServer } from './mock/sample-data';
+import { createNewRelicMCPServer } from './mcp/newrelic-wrapper';
 
 // Load environment variables
 dotenv.config();
@@ -32,7 +32,7 @@ async function main() {
     let newRelicServer: any;
     if (process.env.NEW_RELIC_API_KEY && process.env.NEW_RELIC_ACCOUNT_ID) {
       console.log('📊 Connecting to New Relic...');
-      newRelicServer = new NewRelicMCPServer(
+      newRelicServer = await createNewRelicMCPServer(
         process.env.NEW_RELIC_API_KEY,
         process.env.NEW_RELIC_ACCOUNT_ID
       );

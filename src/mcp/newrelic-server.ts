@@ -118,7 +118,7 @@ export class NewRelicMCPServer {
     });
   }
 
-  private async getErrorInbox(args: any) {
+  async getErrorInbox(args: any) {
     const { timeRange = '1 hour ago', limit = 50, applicationName } = args;
     
     // Convert time range to NRQL format
@@ -162,7 +162,7 @@ export class NewRelicMCPServer {
     };
   }
 
-  private async getDeploymentInfo(args: any) {
+  async getDeploymentInfo(args: any) {
     const { applicationName, timeRange = '24 hours ago' } = args;
     
     const since = this.parseTimeRange(timeRange);
@@ -199,7 +199,7 @@ export class NewRelicMCPServer {
     };
   }
 
-  private async getErrorDetails(args: any) {
+  async getErrorDetails(args: any) {
     const { errorId } = args;
     
     const nrql = `SELECT * FROM ErrorInbox WHERE errorId = '${errorId}' OR \`error.fingerprint\` = '${errorId}' LIMIT 1`;

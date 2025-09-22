@@ -1,5 +1,5 @@
 import { ChatOpenAI } from '@langchain/openai';
-import { PromptTemplate } from 'langchain/prompts';
+import { PromptTemplate } from '@langchain/core/prompts';
 import { NewRelicError, ErrorAnalysis, DeploymentInfo } from '../types/index';
 
 export class ErrorAnalyzer {
@@ -10,7 +10,7 @@ export class ErrorAnalyzer {
   constructor(openaiApiKey: string) {
     this.llm = new ChatOpenAI({
       openAIApiKey: openaiApiKey,
-      modelName: 'gpt-4',
+      modelName: 'gpt-4o',
       temperature: 0.1,
     });
 

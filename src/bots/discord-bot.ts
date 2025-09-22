@@ -18,7 +18,7 @@ export class DiscordBot {
       intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent,
+        // GatewayIntentBits.MessageContent,
         GatewayIntentBits.DirectMessages,
       ],
     });
@@ -29,7 +29,7 @@ export class DiscordBot {
   }
 
   private setupHandlers() {
-    this.client.once(Events.Ready, () => {
+    this.client.once(Events.ClientReady, () => {
       console.log(`✅ Discord bot logged in as ${this.client.user?.tag}!`);
       this.registerSlashCommands();
     });
@@ -112,7 +112,9 @@ export class DiscordBot {
       const cleanText = message.content.replace(/<@!?\d+>/g, '').trim();
       
       // Show typing indicator
-      await message.channel.sendTyping();
+      if ('sendTyping' in message.channel) {
+        await message.channel.sendTyping();
+      }
 
       // Determine intent and extract parameters
       const intent = this.parseIntent(cleanText);
@@ -216,9 +218,11 @@ export class DiscordBot {
       const errors: NewRelicError[] = errorData.errors;
 
       if (errors.length === 0) {
-        await message.channel.send({
-          content: `✅ No errors found in the last ${timeRange}${applicationName ? ` for ${applicationName}` : ''}`,
-        });
+        if ('send' in message.channel) {
+          await message.channel.send({
+            content: `✅ No errors found in the last ${timeRange}${applicationName ? ` for ${applicationName}` : ''}`,
+          });
+        }
         return;
       }
 
@@ -238,16 +242,20 @@ export class DiscordBot {
       const embed = this.createErrorSummaryEmbed(analyses, errors, summary);
       const components = this.createErrorActionButtons(analyses, errors);
 
-      await message.channel.send({
-        content: summary,
-        embeds: [embed],
-        components: components.length > 0 ? [components[0]] : [],
-      });
+      if ('send' in message.channel) {
+        await message.channel.send({
+          content: summary,
+          embeds: [embed],
+          components: components.length > 0 ? [components[0]] : [],
+        });
+      }
 
     } catch (error) {
-      await message.channel.send({
-        content: `❌ Error fetching data: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      });
+      if ('send' in message.channel) {
+        await message.channel.send({
+          content: `❌ Error fetching data: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        });
+      }
     }
   }
 
@@ -310,6 +318,9 @@ export class DiscordBot {
   private async analyzeSpecificError(errorId: string, context: Message | ChatInputCommandInteraction, isInteraction: boolean) {
     try {
       const errorResponse = await this.newRelicServer.getErrorDetails({ errorId });
+      if (!errorResponse) {
+        throw new Error(`Error ${errorId} not found`);
+      }
       const errorData = JSON.parse(errorResponse.content[0].text);
       const error = errorData.error;
 
@@ -359,10 +370,13 @@ export class DiscordBot {
           embeds: [embed],
         });
       } else {
-        await (context as Message).channel.send({
-          content: `Analysis complete for error ${errorId}`,
-          embeds: [embed],
-        });
+        const channel = (context as Message).channel;
+        if ('send' in channel) {
+          await channel.send({
+            content: `Analysis complete for error ${errorId}`,
+            embeds: [embed],
+          });
+        }
       }
 
     } catch (error) {
@@ -371,7 +385,10 @@ export class DiscordBot {
       if (isInteraction) {
         await (context as ChatInputCommandInteraction).editReply({ content: errorMessage });
       } else {
-        await (context as Message).channel.send({ content: errorMessage });
+        const channel = (context as Message).channel;
+        if ('send' in channel) {
+          await channel.send({ content: errorMessage });
+        }
       }
     }
   }
@@ -389,9 +406,11 @@ export class DiscordBot {
       const deployments: DeploymentInfo[] = deploymentData.deployments;
 
       if (deployments.length === 0) {
-        await message.channel.send({
-          content: `No deployments found in the last 24 hours${applicationName ? ` for ${applicationName}` : ''}`,
-        });
+        if ('send' in message.channel) {
+          await message.channel.send({
+            content: `No deployments found in the last 24 hours${applicationName ? ` for ${applicationName}` : ''}`,
+          });
+        }
         return;
       }
 
@@ -413,12 +432,16 @@ export class DiscordBot {
         });
       });
 
-      await message.channel.send({ embeds: [embed] });
+      if ('send' in message.channel) {
+        await message.channel.send({ embeds: [embed] });
+      }
 
     } catch (error) {
-      await message.channel.send({
-        content: `❌ Error fetching deployments: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      });
+      if ('send' in message.channel) {
+        await message.channel.send({
+          content: `❌ Error fetching deployments: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        });
+      }
     }
   }
 
@@ -487,16 +510,22 @@ export class DiscordBot {
       if (response.length > 2000) {
         const chunks = this.splitMessage(response, 2000);
         for (const chunk of chunks) {
-          await message.channel.send({ content: chunk });
+          if ('send' in message.channel) {
+            await message.channel.send({ content: chunk });
+          }
         }
       } else {
-        await message.channel.send({ content: response });
+        if ('send' in message.channel) {
+          await message.channel.send({ content: response });
+        }
       }
 
     } catch (error) {
-      await message.channel.send({
-        content: "I'm having trouble processing that request. Could you try rephrasing it?",
-      });
+      if ('send' in message.channel) {
+        await message.channel.send({
+          content: "I'm having trouble processing that request. Could you try rephrasing it?",
+        });
+      }
     }
   }
 
@@ -710,7 +739,9 @@ export class DiscordBot {
       .setColor('#0099ff')
       .setTimestamp();
 
-    await message.channel.send({ embeds: [embed] });
+    if ('send' in message.channel) {
+      await message.channel.send({ embeds: [embed] });
+    }
   }
 
   async start(token: string) {
