@@ -6,15 +6,16 @@ An AI-powered release assistant that monitors New Relic Error Inbox and provides
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - npm or yarn
-- OpenAI API key
+- Google Gemini API key
 - Discord bot token
 - New Relic API key (optional - uses mock data if not provided)
 
 ### Installation
 
 1. **Clone and install dependencies:**
+
 ```bash
 git clone <repository-url>
 cd vibe-debugger
@@ -22,14 +23,16 @@ npm install
 ```
 
 2. **Set up environment variables:**
+
 ```bash
 cp env.example .env
 ```
 
 Edit `.env` with your credentials:
+
 ```env
 # Required
-OPENAI_API_KEY=your_openai_api_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
 DISCORD_BOT_TOKEN=your_discord_bot_token
 
 # Optional (uses mock data if not provided)
@@ -38,6 +41,7 @@ NEW_RELIC_ACCOUNT_ID=your_account_id_here
 ```
 
 3. **Build and run:**
+
 ```bash
 npm run build
 npm start
@@ -67,19 +71,19 @@ Bot: 🔍 Checking for errors in the last 30 minutes...
      • Critical: 1 🔴
      • High Priority: 1 🟡
      • Release Related: 2
-     
+
      🚨 ROLLBACK RECOMMENDED for 1 critical issue(s)
 
 You: Should we rollback?
-Bot: Based on the database timeout errors (45 occurrences, 25% user impact) 
-     that started 5 minutes after the v2.1.4 deployment, I recommend an 
-     immediate rollback. The errors are clearly correlated with the recent 
+Bot: Based on the database timeout errors (45 occurrences, 25% user impact)
+     that started 5 minutes after the v2.1.4 deployment, I recommend an
+     immediate rollback. The errors are clearly correlated with the recent
      database migration changes.
 
 You: What about the payment errors?
-Bot: The payment gateway timeouts are also concerning (8 occurrences, 60% 
-     user impact). This appears related to the payment processing improvements 
-     in v2.1.4. I'd recommend rolling back and investigating both issues in 
+Bot: The payment gateway timeouts are also concerning (8 occurrences, 60%
+     user impact). This appears related to the payment processing improvements
+     in v2.1.4. I'd recommend rolling back and investigating both issues in
      staging before the next deployment.
 ```
 
@@ -88,17 +92,20 @@ Bot: The payment gateway timeouts are also concerning (8 occurrences, 60%
 ### Core Components
 
 1. **New Relic MCP Server** (`src/mcp/newrelic-server.ts`)
+
    - Fetches errors from New Relic Error Inbox
    - Gets deployment information
    - Retrieves detailed error information
 
 2. **AI Error Analyzer** (`src/agents/error-analyzer.ts`)
+
    - Analyzes error patterns and severity
    - Correlates errors with deployments
    - Generates recommendations (rollback/hotfix/monitor)
    - Handles conversational interactions
 
 3. **Discord Bot** (`src/bots/discord-bot.ts`)
+
    - Interactive chat interface with embeds and buttons
    - Slash command support
    - Rich message formatting with embeds
@@ -112,18 +119,21 @@ Bot: The payment gateway timeouts are also concerning (8 occurrences, 60%
 ## 🎯 Features
 
 ### Error Analysis
+
 - **Severity Assessment:** Critical/High/Medium/Low classification
 - **Release Correlation:** Identifies deployment-related errors
 - **Impact Analysis:** User impact and error frequency analysis
 - **Confidence Scoring:** AI confidence levels for recommendations
 
 ### Recommendations
+
 - **Rollback:** For critical deployment-related issues
 - **Hotfix:** For high-impact issues with clear fixes
 - **Monitor:** For low-impact or unclear correlation issues
 - **Investigate:** When more data is needed
 
 ### Chat Interface
+
 - **Natural Language:** Ask questions in plain English
 - **Interactive Buttons:** Click to analyze specific errors
 - **Context Awareness:** Bot remembers conversation context
@@ -163,14 +173,14 @@ Run with mock data to demonstrate these scenarios.
 
 ### Environment Variables
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `OPENAI_API_KEY` | Yes | OpenAI API key for AI analysis |
-| `DISCORD_BOT_TOKEN` | Yes | Discord bot token |
-| `NEW_RELIC_API_KEY` | No | New Relic API key (uses mock if missing) |
-| `NEW_RELIC_ACCOUNT_ID` | No | New Relic account ID |
-| `NODE_ENV` | No | Environment (development/production) |
-| `PORT` | No | Server port (default: 3000) |
+| Variable               | Required | Description                              |
+| ---------------------- | -------- | ---------------------------------------- |
+| `GEMINI_API_KEY`       | Yes      | Google Gemini API key for AI analysis    |
+| `DISCORD_BOT_TOKEN`    | Yes      | Discord bot token                        |
+| `NEW_RELIC_API_KEY`    | No       | New Relic API key (uses mock if missing) |
+| `NEW_RELIC_ACCOUNT_ID` | No       | New Relic account ID                     |
+| `NODE_ENV`             | No       | Environment (development/production)     |
+| `PORT`                 | No       | Server port (default: 3000)              |
 
 ### Discord Bot Setup
 
@@ -187,10 +197,11 @@ Run with mock data to demonstrate these scenarios.
 ## 🚀 Development
 
 ### Project Structure
+
 ```
 src/
 ├── agents/          # AI analysis logic
-├── bots/           # Chat platform integrations  
+├── bots/           # Chat platform integrations
 ├── mcp/            # New Relic MCP server
 ├── mock/           # Sample data for testing
 ├── types/          # TypeScript type definitions
@@ -199,6 +210,7 @@ src/
 ```
 
 ### Available Scripts
+
 - `npm run dev` - Development with hot reload
 - `npm run build` - Build TypeScript to JavaScript
 - `npm start` - Run built application
@@ -215,6 +227,7 @@ src/
 ## 📈 Monitoring
 
 The system is designed to integrate with:
+
 - **LangFuse:** AI system observability (future enhancement)
 - **LangGraph:** Workflow orchestration (future enhancement)
 - **New Relic:** Application monitoring (current)

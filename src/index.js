@@ -1,8 +1,7 @@
 import dotenv from 'dotenv';
-import { ErrorAnalyzer } from './agents/error-analyzer';
-import { DiscordBot } from './bots/discord-bot';
-import { MockNewRelicServer } from './mock/sample-data';
-import { createNewRelicMCPServer } from './mcp/newrelic-wrapper';
+import { ErrorAnalyzer } from './agents/error-analyzer.js';
+import { DiscordBot } from './bots/discord-bot.js';
+import { NewRelicMCPServer } from './mcp/newrelic-server.js';
 
 // Load environment variables
 dotenv.config();
@@ -12,7 +11,7 @@ async function main() {
 
   // Validate required environment variables
   const requiredEnvVars = [
-    'OPENAI_API_KEY',
+    'GEMINI_API_KEY',
     'DISCORD_BOT_TOKEN',
   ];
 
@@ -24,33 +23,31 @@ async function main() {
   }
 
   try {
-    // Initialize components
-    console.log('🤖 Initializing AI Error Analyzer...');
-    const errorAnalyzer = new ErrorAnalyzer(process.env.OPENAI_API_KEY!);
-
     // Initialize New Relic server (or mock for demo)
-    let newRelicServer: any;
+    let newRelicServer;
     if (process.env.NEW_RELIC_API_KEY && process.env.NEW_RELIC_ACCOUNT_ID) {
       console.log('📊 Connecting to New Relic...');
-      newRelicServer = await createNewRelicMCPServer(
+      newRelicServer = new NewRelicMCPServer(
         process.env.NEW_RELIC_API_KEY,
         process.env.NEW_RELIC_ACCOUNT_ID
       );
     } else {
       console.log('🎭 Using mock New Relic data for demo...');
-      newRelicServer = new MockNewRelicServer();
     }
+
+    // Initialize components
+    console.log('🤖 Initializing AI Error Analyzer...');
+    const errorAnalyzer = new ErrorAnalyzer(process.env.GEMINI_API_KEY, newRelicServer);
 
     // Initialize Discord bot
     console.log('💬 Starting Discord bot...');
     const discordBot = new DiscordBot(
-      process.env.DISCORD_BOT_TOKEN!,
-      errorAnalyzer,
-      newRelicServer
+      process.env.DISCORD_BOT_TOKEN,
+      errorAnalyzer
     );
 
     // Start the bot
-    await discordBot.start(process.env.DISCORD_BOT_TOKEN!);
+    await discordBot.start(process.env.DISCORD_BOT_TOKEN);
 
     console.log('✅ Vibe Debugger is running!');
     console.log('');
@@ -69,7 +66,7 @@ async function main() {
     console.log('');
     console.log('🔧 Configuration:');
     console.log(`  • New Relic: ${process.env.NEW_RELIC_API_KEY ? '✅ Connected' : '🎭 Mock Mode'}`);
-    console.log(`  • OpenAI: ${process.env.OPENAI_API_KEY ? '✅ Connected' : '❌ Missing'}`);
+    console.log(`  • OpenAI: ${process.env.GEMINI_API_KEY ? '✅ Connected' : '❌ Missing'}`);
     console.log(`  • Discord: ✅ Connected`);
 
   } catch (error) {
